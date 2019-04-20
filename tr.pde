@@ -7,7 +7,6 @@ public class Type {
   
   public Type(byte[] data){
     this.data = data;
-    as = null;
   }
   
   public byte[] getDataWithFrame(){
@@ -59,29 +58,21 @@ public class Type {
     
     return rV;
   }
-  // --------
+  
   byte[] data;
-  TreeFile tf;
   
   
   public TreeFile getTreeFile(){
-    TreeFile rV = tf;
-    if(rV == null)
-      rV = new TreeFile().load(getData());
-    return rV;
+    return new TreeFile().load(data);
   }
   
   public Type setTreeFile(TreeFile tf){
-    this.data = null;
-    this.tf = tf;
+    this.data = tf.getData();
     return this;
   }
   
   public Attribute getAttribute(){
-    Attrubute rV = tf;
-    if(rV == null)
-      rV = new Attribute().load(getData());
-    return rV;
+    return new Attribute().load(data);
   }
   
   public Type setAttribute(Attribute a){
@@ -90,10 +81,7 @@ public class Type {
   }
   
   public AttributeSet getAttributeSet(){
-    AttributeSet rV = tf;
-    if(rV == null)
-      rV = new AttributeSet().load(getData());
-    return rV;
+    return new AttributeSet().load(data);
   }
   
   public Type setAttributeSet(AttributeSet as){
@@ -102,17 +90,7 @@ public class Type {
   }
   
   
-  // get Time (long), bool, byte, col?, int, double, %, that special num
-  
   public byte[] getBytes(){
-    return getData();
-  }
-  
-  
-  public byte[] getData(){
-    if(this.data == null){
-      return tf.getData();
-    }
     return this.data;
   }
   
@@ -123,7 +101,7 @@ public class Type {
   
   
   public String getString(){
-    return new String(getData);
+    return new String(data);
   }
   
   public Type setString(String s){
