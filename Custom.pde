@@ -1,13 +1,13 @@
 
 
-public class Attribute extends TreeFile{
+public class BasicAttribute extends TreeFile{
   
   
-  public Attribute(){
+  public BasicAttribute(){
     super();
   }
   
-  public Attribute(String name, Type t){
+  public BasicAttribute(String name, Type t){
     super();
     
     setName(name);
@@ -16,7 +16,7 @@ public class Attribute extends TreeFile{
   }
   
   @Override
-  public Attribute load(byte[] b){
+  public BasicAttribute load(byte[] b){
     super.load(b);
     return this;
   }
@@ -41,9 +41,20 @@ public class Attribute extends TreeFile{
 }
 
 
-public class Custom extends Attribute{
+public class Attribute extends BasicAttribute{
   // is for additional values
-  public Custom(String name, Type t){
+  
+  @Override
+  public Attribute load(byte[] b){
+    super.load(b);
+    return this;
+  }
+  
+  public Attribute(){
+    super();
+  }
+  
+  public Attribute(String name, Type t){
     super(name, t);
   }
   
@@ -118,21 +129,41 @@ public class AttributeSet extends TreeFile{
     return getAttribute(name).getValue();
   }
   
-  public Type getValue(String name, Type ifNull){
+  public Type getValue(String name, Type ifNull, boolean put){
     Attribute rV = getAttribute(name);
-    if(rV == null)
+    if(rV == null){
+      if(put)
+        this.put(name, ifNull);
       return ifNull;
+    }
     return rV.getValue();
   }
+  
+  
   
   public Type getType(String name){
     return getValue(name);
   }
   
   public Type getType(String name, Type ifNull){
-    return getValue(name, ifNull);
+    return getValue(name, ifNull, false);
   }
   
+  
+  public AttributeSet getAttributeSet(String name){
+    return getType(name).getAttributeSet();
+  }
+  
+  public AttributeSet getAttributeSet(String name, AttributeSet ifNull, boolean put){
+    return getValue(name, new Type().setAttributeSet(ifNull), put).getAttributeSet();
+  }
+  
+  public AttributeSet getAttributeSet(String name, AttributeSet ifNull){
+    return getAttributeSet(name, ifNull, true);
+  }
+  
+  // TODO will this get saved?
+  // guess not cuz type has to be added swhere
   
   
   public Attribute[] getAttributes(){

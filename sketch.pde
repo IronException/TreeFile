@@ -1,77 +1,33 @@
 
-public String getPath(String toAdd){
-  return android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DCIM).getParentFile().getAbsolutePath() + 
-  "/CODING/" + toAdd;
-}
 
 public void setup(){
-  initUseProc();
   
   
-  String filepath = getPath("tf/todos.tf");
+  //new Link().setNavi(new String[]{"", "", ""});
   
-  tf = new AttributeSet();
-  tf.load(filepath);
+  byte[] bytes = new byte[0];
   
-  tf.put("lol", new Type().setString("u gay"));
   
-  Attribute[] as = tf.getAttributes();
+  AttributeSet tf = new AttributeSet();
+  tf.load(bytes);
+  tf.put("lol", new Type());
   
-  tf.save(filepath);
+  printl(tf.data);
+  tf.put("lol ", new Type().setLink(new Link().setNavi(new String[]{"dont worry", " ", "^", "□"})));
+  bytes = tf.getData();
+  println(bytes);
+  println("----");
   
-  nextScreen(new AttributeViz(as), false);
-  
+  tf.load(bytes);
+  println(tf.getType("lol ", new Type()).getBytes());
+  println("--");
+  noLoop();
 }
 
-AttributeSet tf;
 
-AttrViz[] panels;
-
-public void draw(){
-  
-  useProc.drawHelper();
-  
-  
-}
-
-public class AttrViz extends Panel {
-  
-  
-  public AttrViz(Attribute a){
-    this.a = a;
-  }
-  
-  Attribute a;
-  
-  public void render(){
-    fill(255);
-    rect(xPos, yPos, xSize, ySize);
-  }
-  
-  
-}
-
-public class AttributeViz extends Screen{
-  
-  
-  public AttributeViz(Attribute[] as){
-    super();
-    
-    panels = new Panel[as.length + 1];
-    int i;
-    for(i = 0; i < as.length; i ++){
-      panels[i] = new AttrViz(as[i]);
-    }
-    panels[i] = new Key("add", new Runnable(){
-      public void run(){
-        println("// TODO add");
-      }
-    });
-    
-  }
-  
-  public void init(){
-    super.setPosSize();
-    super.init();
+public void printl(Type[] ts){
+  for(int i = 0; i < ts.length; i ++){
+    println(i + ": " + ts[i]);
   }
 }
+
