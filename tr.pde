@@ -7,12 +7,14 @@ public class Type {
   
   public Type(byte[] data){
     this.data = data;
-    as = null;
+    this.tf = null;
+    
   }
   
   public byte[] getDataWithFrame(){
-    byte[] lenB = getLenBytes();
-    byte[] rV = new byte[2 + lenB.length + this.data.length];
+    byte[] ds = getData();
+    byte[] lenB = new Type().makeFlexibleInt(ds.length);
+    byte[] rV = new byte[2 + lenB.length + ds.length];
     int ind = 0;
     rV[ind] = (byte) 0x00;
     ind ++;
@@ -22,19 +24,25 @@ public class Type {
       ind ++;
     }
     
-    for(int i = 0; i < this.data.length; i ++){
-      rV[ind] = this.data[i];
+    for(int i = 0; i < ds.length; i ++){
+      rV[ind] = ds[i];
       ind ++;
     }
     
     rV[ind] = (byte) 0xFF;
     ind ++;
     
+    
     return rV;
   }
   
-  public byte[] getLenBytes(){
-    int len = this.data.length;
+  public Type setFlexibleInt(int ind){
+    this.data = makeFlexibleInt(ind);
+    return this;
+  }
+  
+  public byte[] makeFlexibleInt(int l){
+    int len = l;
     byte[] lenB = new byte[]{
       (byte) ((len >> 28) & 0x7F),
       (byte) ((len >> 21) & 0x7F),
@@ -56,10 +64,27 @@ public class Type {
       
       
     }
-    
+    //this.data = rV;
     return rV;
   }
+  
+  
+  public int getFlexibleInt(){
+    int rV = 0;
+    for(byte b : getData())
+      rV = addToNum(rV, b);
+    return rV;
+  }
+  
+  public int addToNum(int num, byte toAdd){
+    int rV = num << 7; // 0111 = 4 + 2 + 1
+    rV += toAdd & 0x7F; // ?
+    return rV;
+  }
+  
   // --------
+  
+  
   byte[] data;
   TreeFile tf;
   
@@ -78,7 +103,7 @@ public class Type {
   }
   
   public Attribute getAttribute(){
-    Attrubute rV = tf;
+    Attribute rV = (Attribute) tf;
     if(rV == null)
       rV = new Attribute().load(getData());
     return rV;
@@ -90,7 +115,7 @@ public class Type {
   }
   
   public AttributeSet getAttributeSet(){
-    AttributeSet rV = tf;
+    AttributeSet rV = (AttributeSet) tf;
     if(rV == null)
       rV = new AttributeSet().load(getData());
     return rV;
@@ -98,6 +123,18 @@ public class Type {
   
   public Type setAttributeSet(AttributeSet as){
     setTreeFile(as);
+    return this;
+  }
+  
+  public Link getLink(){
+    Link rV = (Link) tf;
+    if(rV == null)
+      rV = new Link().load(getData());
+    return rV;
+  }
+  
+  public Type setLink(Link l){
+    setAttributeSet(l);
     return this;
   }
   
@@ -111,6 +148,7 @@ public class Type {
   
   public byte[] getData(){
     if(this.data == null){
+      println("in getData: " + tf + " (" + this);
       return tf.getData();
     }
     return this.data;
@@ -122,8 +160,14 @@ public class Type {
   }
   
   
+  public Type setBool(boolean b){
+    // TODO
+    return this;
+  }
+  
+  
   public String getString(){
-    return new String(getData);
+    return new String(getData());
   }
   
   public Type setString(String s){
@@ -186,7 +230,7 @@ public class TreeFile {
       }
       
       
-      nevSize = addToNum(nevSize, toExtract[i]);
+      nevSize = new Type().addToNum(nevSize, toExtract[i]);
       
       if(getBit(toExtract[i], 0)){// extract to data
         nev = new byte[nevSize];
@@ -229,15 +273,6 @@ public class TreeFile {
   public Type[] data;
   
   
-  
-  public int addToNum(int num, byte toAdd){
-    int rV = num << 7; // 0111 = 4 + 2 + 1
-    rV += toAdd & 0x7F; // ?
-    return rV;
-  }
-  
-
-  
   public Type[] getTypes(){
     return data;
   }
@@ -249,7 +284,14 @@ public class TreeFile {
   
   
   public Type getType(int i){
-    makeDataBiggerIfNeeded(i + 1);
+    return getType(i, true);
+  }
+  
+  public Type getType(int i, boolean makeBigger){
+    if(makeBigger)
+      makeDataBiggerIfNeeded(i + 1);
+    if(i >= data.length)
+      return null;
     return data[i];
   }
   
